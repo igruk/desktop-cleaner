@@ -1,6 +1,6 @@
 # Desktop Cleaner
 
-**Desktop Cleaner** is a **Python** application that allows you to tidy up your desktop with just one click. It moves all files on your desktop to a new folder and sorts them by type. The app comes with a Graphical User Interface (**GUI**) created with **Tkinter** for ease of use that supports both English and Ukrainian languages. The datetime package is used to generate name of the new folder based on the current date. 
+**Desktop Cleaner** is a **Python** application that allows you to tidy up your desktop with just one click. It moves all files on your desktop to a new folder and sorts them by type. The app comes with a Graphical User Interface (**GUI**) created with **Tkinter** for ease of use that supports both English and Ukrainian languages.
 
 ![image](https://user-images.githubusercontent.com/88056536/228389587-5563116b-4841-40b9-87ec-e50d861e7079.png)
 
@@ -28,6 +28,8 @@ The application requires the following Python packages:
 - shutil
 - tkinter
 - datetime 
+
+*The datetime package is used to generate name of the new folder based on the current date.*
 
 ## Showcase
 
