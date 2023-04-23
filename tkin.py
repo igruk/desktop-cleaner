@@ -7,8 +7,9 @@ import shutil
 import os
 
 
-'''обираємо шлях до папки'''
 def open_directory():
+    '''обираємо шлях до папки'''
+
     global path
     path = filedialog.askdirectory()
 
@@ -28,8 +29,9 @@ def open_directory():
         start_button["state"] = "disabled"
 
 
-'''зміна мови інтерфейсу'''
 def change_language():
+    '''зміна мови інтерфейсу'''
+
     global language
 
     if language == "en":
@@ -46,8 +48,9 @@ def change_language():
         label["text"] = "Clear Desktop in one Click!"
 
 
-'''старт програми'''
 def start():
+    '''старт програми'''
+
     file_list = os.listdir(path)  # список файлів у вибраній папці (на робочому столі)
 
     dir_name = 'desktop-' + str(date.today())  # назва папки, куди будуть переміщені файли
