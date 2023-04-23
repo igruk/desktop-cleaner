@@ -17,8 +17,8 @@
 
 1. Download the application file from GitHub.
 2. Run the application.
-3. Specify the path to the desktop or any other folder.
-4. Check the box "Include Shortcuts and Folders" if necessary.
+3. Specify path to the desktop or any other folder.
+4. Check box "Include Shortcuts and Folders" if necessary.
 5. Click on the "Start" button to tidy up your desktop.
 
 ## Dependencies
