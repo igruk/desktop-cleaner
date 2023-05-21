@@ -1,6 +1,4 @@
-from tkinter import *
-from tkinter import ttk
-from tkinter import filedialog
+from tkinter import ttk, IntVar, Tk, filedialog
 from tkinter.messagebox import showinfo
 from datetime import date
 import shutil
