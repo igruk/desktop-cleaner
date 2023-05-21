@@ -8,17 +8,11 @@ import os
 
 
 def open_directory():
-    '''обираємо шлях до папки'''
-
+    """Choose the path to the folder"""
     global path
     path = filedialog.askdirectory()
 
     if path != '':
-        filelist = os.listdir(path)
-
-        for file in filelist:
-            source = path + '/' + file  # шлях до файлу у вибраній папці
-
         check_label["text"] = ''
         path_label["text"] = path[:3] + '.../' + path.split('/')[-1]
         start_button["state"] = "enabled"
@@ -30,8 +24,7 @@ def open_directory():
 
 
 def change_language():
-    '''зміна мови інтерфейсу'''
-
+    """Change the interface language"""
     global language
 
     if language == "en":
@@ -49,40 +42,41 @@ def change_language():
 
 
 def start():
-    '''старт програми'''
+    """Start app"""
+    file_list = os.listdir(path)  # list of files in the selected folder (on the desktop)
 
-    file_list = os.listdir(path)  # список файлів у вибраній папці (на робочому столі)
+    dir_name = 'desktop-' + str(date.today())  # the folder where the files will be moved
+    dir_path = path + '/' + dir_name  # path to the folder
 
-    dir_name = 'desktop-' + str(date.today())  # назва папки, куди будуть переміщені файли
-    dir_path = path + '/' + dir_name  # шлях до цієї папки
-
-    if not os.path.exists(dir_path):  # якщо папки не існує - створити
+    if not os.path.exists(dir_path):  # if the folder does not exist - create it
         os.mkdir(dir_path)
 
     for file in file_list:
-        source = path + '/' + file  # шлях до файлу у вибраній папці
+        source = path + '/' + file  # path to the file in the selected folder
 
-        if enabled.get() == 0:  # якщо не треба включати ярлики та папки
+        if enabled.get() == 0:  # if you don't need to include shortcuts and folders
             if os.path.isfile(source):
-                file_type = source.split('.')[-1]  # якщо це файл - визначаємо тип
+                file_type = source.split('.')[-1]  # if it is a file - defines the type
 
-                if file_type != 'lnk' and file_type != 'url':  # виключаємо ярлики
-                    type_dir_path = dir_path + '/' + file_type  # шлях до папки певного типу
+                if file_type != 'lnk' and file_type != 'url':  # not include shortcuts
+                    type_dir_path = dir_path + '/' + file_type  # path to the folder of a specific type
 
                     if not os.path.exists(type_dir_path):
                         os.mkdir(type_dir_path)
 
                     try:
-                        shutil.move(source, type_dir_path)  # переміщення файлу
+                        shutil.move(source, type_dir_path)  # move the file
                     except shutil.Error:
                         if language == 'en':
-                            showinfo(title='Info', message=f'File with name "{file}" already exists and won\'t be moved')
+                            showinfo(title='Info',
+                                     message=f'File with name "{file}" already exists and won\'t be moved')
                         else:
-                            showinfo(title='Повтор', message=f'Файл "{file}" вже існує і не буде переміщений')
+                            showinfo(title='Повтор',
+                                     message=f'Файл "{file}" вже існує і не буде переміщений')
 
-        else:  # якщо треба включати ярлики та папки
+        else:  # if you need to include shortcuts and folders
             if os.path.isfile(source):
-                file_type = source.split('.')[-1]  # якщо це файл - визначаємо тип
+                file_type = source.split('.')[-1]  # if it is a file - defines the type
                 type_dir_path = dir_path + '/' + file_type
 
                 if not os.path.exists(type_dir_path):
@@ -96,8 +90,8 @@ def start():
                     else:
                         showinfo(title='Повтор', message=f'Файл "{file}" вже існує і не буде переміщений')
 
-            else:  #якщо це папка
-                folder_dir_path = dir_path + '/folders'  # шлях до папки з папками
+            else:  # if directory
+                folder_dir_path = dir_path + '/folders'  # path to folder with sub-folders
 
                 if not os.path.exists(folder_dir_path):
                     os.mkdir(folder_dir_path)
@@ -107,7 +101,8 @@ def start():
                         shutil.move(source, folder_dir_path)
                     except shutil.Error:
                         if language == 'en':
-                            showinfo(title='Info', message=f'Folder with name "{file}" already exists and won\'t be moved')
+                            showinfo(title='Info',
+                                     message=f'Folder with name "{file}" already exists and won\'t be moved')
                         else:
                             showinfo(title='Повтор', message=f'Папка "{file}" вже існує і не буде переміщена')
 
