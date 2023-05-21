@@ -84,7 +84,8 @@ def start():
                     shutil.move(source, type_dir_path)
                 except shutil.Error:
                     if language == 'en':
-                        showinfo(title='Info', message=f'File with name "{file}" already exists and won\'t be moved')
+                        showinfo(title='Info', 
+                                 message=f'File with name "{file}" already exists and won\'t be moved')
                     else:
                         showinfo(title='Повтор', message=f'Файл "{file}" вже існує і не буде переміщений')
 
