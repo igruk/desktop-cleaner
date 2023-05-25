@@ -7,127 +7,110 @@ from datetime import date
 from config import CONFIG, FILE_TYPES
 
 
-def open_directory():
-    """Choose the path to the folder"""
-    global path
-    path = filedialog.askdirectory()
+class DesktopCleanerApp:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Desktop Cleaner")
+        self.root.geometry("450x250+500+300")
 
-    if path:
-        check_label["text"] = ''
-        path_label["text"] = f'{path[:3]}.../{os.path.split(path)[-1]}'
-        start_button["state"] = tk.NORMAL
-    else:
-        check_label["text"] = ''
-        path_label["text"] = ''
-        start_button["state"] = tk.DISABLED
+        self.language = "en"
+        self.enabled = tk.IntVar()
 
+        self.language_button = ttk.Button(text=CONFIG[self.language]['language_button_text'],
+                                          command=self.change_language)
+        self.language_button.pack(padx=5, pady=5, anchor="ne")
 
-def change_language():
-    """Change the interface language"""
-    global language
-    language = 'ua' if language == 'en' else 'en'
-    update_language()
+        self.label = ttk.Label(text=CONFIG[self.language]['label_text'],
+                               font=("Courier New", 14))
+        self.label.pack(pady=8)
 
+        self.open_button = ttk.Button(text=CONFIG[self.language]['open_button_text'],
+                                      command=self.open_directory)
+        self.open_button.pack(pady=8, ipady=3, expand=True)
 
-def update_language():
-    """Update the language translations for the UI"""
-    translations = CONFIG[language]
-    language_button["text"] = translations['language_button_text']
-    open_button["text"] = translations['open_button_text']
-    start_button["text"] = translations['start_button_text']
-    check_button["text"] = translations['check_button_text']
-    label["text"] = translations['label_text']
-    root.title("Desktop Cleaner")
+        self.path_label = ttk.Label(text='')
+        self.path_label.pack(anchor="n", expand=True)
 
+        self.check_label = ttk.Label(text='')
+        self.check_label.pack(anchor="n", expand=True)
 
-def move_files():
-    """Move files from the desktop to a new folder"""
-    file_list = os.listdir(path)  # list of files in the selected folder (on the desktop)
+        self.start_button = ttk.Button(text=CONFIG[self.language]['start_button_text'],
+                                       command=self.move_files,
+                                       state=tk.DISABLED)
+        self.start_button.pack(expand=True, ipady=10)
 
-    dir_name = 'desktop-' + str(date.today())  # the folder where the files will be moved
-    dir_path = os.path.join(path, dir_name)  # path to the folder
+        self.check_button = ttk.Checkbutton(text=CONFIG[self.language]['check_button_text'],
+                                            variable=self.enabled)
+        self.check_button.pack(expand=True, padx=5, pady=5, anchor="sw")
 
-    if not os.path.exists(dir_path):  # if the folder does not exist, create it
-        os.mkdir(dir_path)
+        self.update_language()
 
-    for file in file_list:
-        source = os.path.join(path, file)  # path to the file in the selected folder
+    def change_language(self):
+        """Change the interface language"""
+        self.language = 'ua' if self.language == 'en' else 'en'
+        self.update_language()
 
-        if enabled.get() == 0:  # if you don't need to include shortcuts and folders
-            if os.path.isfile(source):
-                file_type = source.split('.')[-1]  # if it is a file, determine the type
+    def update_language(self):
+        """Update the language translations for the UI"""
+        translations = CONFIG[self.language]
+        self.language_button["text"] = translations['language_button_text']
+        self.open_button["text"] = translations['open_button_text']
+        self.start_button["text"] = translations['start_button_text']
+        self.check_button["text"] = translations['check_button_text']
+        self.label["text"] = translations['label_text']
+        self.root.title("Desktop Cleaner")
 
-                if file_type not in FILE_TYPES:  # do not include shortcuts
-                    type_dir_path = os.path.join(dir_path, file_type)  # path to the folder of a specific type
+    def open_directory(self):
+        """Choose the path to the folder"""
+        self.path = filedialog.askdirectory()
 
-                    if not os.path.exists(type_dir_path):
-                        os.mkdir(type_dir_path)
+        if self.path:
+            self.check_label["text"] = ''
+            self.path_label["text"] = f'{self.path[:3]}.../{os.path.split(self.path)[-1]}'
+            self.start_button["state"] = tk.NORMAL
+        else:
+            self.check_label["text"] = ''
+            self.path_label["text"] = ''
+            self.start_button["state"] = tk.DISABLED
 
-                    try:
-                        shutil.move(source, type_dir_path)  # move the file
-                    except shutil.Error:
-                        message = CONFIG[language]['file_exists_message'].format(file=file)
-                        messagebox.showinfo(title=CONFIG[language]['info_title'], message=message)
+    def move_file(self, source, destination, filename):
+        """Move the file to a new folder if it is not there"""
+        try:
+            shutil.move(source, destination)
+        except shutil.Error:
+            message = CONFIG[self.language]['file_exists_message'].format(file=filename)
+            messagebox.showinfo(title=CONFIG[self.language]['info_title'], message=message)
 
-        else:  # if you need to include shortcuts and folders
-            if os.path.isfile(source):
-                file_type = source.split('.')[-1]  # if it is a file, determine the type
-                type_dir_path = os.path.join(dir_path, file_type)
+    def move_files(self):
+        """Move files from the desktop to a new folder"""
+        file_list = os.listdir(self.path)
+        dir_name = 'desktop-' + str(date.today())
+        dir_path = os.path.join(self.path, dir_name)
+        os.makedirs(dir_path, exist_ok=True)
 
-                if not os.path.exists(type_dir_path):
-                    os.mkdir(type_dir_path)
+        for filename in file_list:
+            source = os.path.join(self.path, filename)
+            file_type = os.path.splitext(filename)[1][1:].lower()
+            type_dir_path = os.path.join(dir_path, file_type) if file_type else os.path.join(dir_path, 'folders')
 
-                try:
-                    shutil.move(source, type_dir_path)
-                except shutil.Error:
-                    message = CONFIG[language]['file_exists_message'].format(file=file)
-                    messagebox.showinfo(title=CONFIG[language]['info_title'], message=message)
+            if not self.enabled.get():
+                if file_type and file_type not in FILE_TYPES:
+                    type_dir_path = os.path.join(dir_path, file_type)
+                    os.makedirs(type_dir_path, exist_ok=True)
+                    self.move_file(source, type_dir_path, filename)
 
-            else:  # if directory
-                folder_dir_path = os.path.join(dir_path, 'folders')  # path to folder with sub-folders
-
-                if not os.path.exists(folder_dir_path):
-                    os.mkdir(folder_dir_path)
-
+            else:
+                os.makedirs(type_dir_path, exist_ok=True)
                 if dir_path != source:
-                    try:
-                        shutil.move(source, folder_dir_path)
-                    except shutil.Error:
-                        message = CONFIG[language]['folder_exists_message'].format(folder=file)
-                        messagebox.showinfo(title=CONFIG[language]['info_title'], message=message)
+                    self.move_file(source, type_dir_path, filename)
 
-    check_label["text"] = "✓"
-    check_label["font"] = ("Courier New", 14)
+        self.check_label["text"] = "✓"
+        self.check_label["font"] = ("Courier New", 14)
+
+    def run(self):
+        self.root.mainloop()
 
 
-root = tk.Tk()
-root.title("Desktop Cleaner")
-root.geometry("450x250+500+300")
-
-language = "en"
-enabled = tk.IntVar()
-
-language_button = ttk.Button(text=CONFIG[language]['language_button_text'], command=change_language)
-language_button.pack(padx=5, pady=5, anchor="ne")
-
-label = ttk.Label(text=CONFIG[language]['label_text'], font=("Courier New", 14))
-label.pack(pady=8)
-
-open_button = ttk.Button(text=CONFIG[language]['open_button_text'], command=open_directory)
-open_button.pack(pady=8, ipady=3, expand=True)
-
-path_label = ttk.Label(text='')
-path_label.pack(anchor="n", expand=True)
-
-check_label = ttk.Label(text='')
-check_label.pack(anchor="n", expand=True)
-
-start_button = ttk.Button(text=CONFIG[language]['start_button_text'], command=move_files, state=tk.DISABLED)
-start_button.pack(expand=True, ipady=10)
-
-check_button = ttk.Checkbutton(text=CONFIG[language]['check_button_text'], variable=enabled)
-check_button.pack(expand=True, padx=5, pady=5, anchor="sw")
-
-update_language()  # Update the language translations initially
-
-root.mainloop()
+if __name__ == "__main__":
+    app = DesktopCleanerApp()
+    app.run()
